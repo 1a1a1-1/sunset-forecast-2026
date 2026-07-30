@@ -7,146 +7,149 @@
     <style>
         :root { 
             --primary-color: #ff6b6b; 
-            --bg-color: #fff5f5; 
-            --card-bg: #ffffff;
             --text-main: #333333;
             --text-sub: #666666;
+            --card-bg: rgba(255, 255, 255, 0.92); /* 卡片半透明白色 */
         }
+        
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            background-color: var(--bg-color); 
             margin: 0; 
             padding: 0; 
             color: var(--text-main); 
+            min-height: 100vh;
+            /* 核心改动：背景图设置 */
+            background: url('晚霞.jpg') no-repeat center center fixed;
+            background-size: cover;
             -webkit-font-smoothing: antialiased;
         }
-        
-        /* 顶部标题栏 */
+
+        /* 顶部标题栏 - 半透明毛玻璃效果 */
         header { 
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); 
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
             padding: 20px 15px; 
             text-align: center; 
-            box-shadow: 0 2px 10px rgba(255, 107, 107, 0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        h1 { margin: 0; color: #d63031; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px; }
+        h1 { margin: 0; color: #d63031; font-size: 1.6rem; font-weight: 700; letter-spacing: 1px; }
         
-        /* 一级导航：左右滑动的观赏点 */
+        /* 一级导航：地点滑动 */
         .location-scroller {
             display: flex;
             overflow-x: auto;
             white-space: nowrap;
             padding: 15px;
-            background: #fff;
-            -webkit-overflow-scrolling: touch; /* iOS顺滑滚动 */
-            scrollbar-width: none; /* Firefox隐藏滚动条 */
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            scrollbar-width: none;
         }
-        .location-scroller::-webkit-scrollbar { display: none; /* Chrome/Safari隐藏滚动条 */ }
+        .location-scroller::-webkit-scrollbar { display: none; }
         
         .loc-tab {
             display: inline-block;
-            padding: 8px 18px;
+            padding: 10px 20px;
             margin-right: 12px;
-            border-radius: 20px;
-            background: #f0f0f0;
+            border-radius: 24px;
+            background: rgba(240, 240, 240, 0.8);
             color: #666;
-            font-size: 0.95rem;
+            font-size: 1.05rem;
             font-weight: 500;
             transition: all 0.3s ease;
             cursor: pointer;
-            border: 1px solid transparent;
         }
         .loc-tab.active {
             background: var(--primary-color);
             color: white;
-            box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
             transform: scale(1.05);
         }
 
-        /* 二级导航：日期选择胶囊 */
+        /* 二级导航：日期选择 */
         .date-selector {
             display: flex;
             justify-content: center;
             gap: 15px;
-            padding: 10px 15px 20px;
-            background: #fff;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            margin-bottom: 10px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            margin-bottom: 15px;
         }
         .date-pill {
-            padding: 8px 20px;
-            border-radius: 12px;
-            background: #fff;
-            border: 1px solid #eee;
+            padding: 10px 24px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid transparent;
             color: var(--text-sub);
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            min-width: 60px;
-            text-align: center;
         }
         .date-pill.active {
-            background: #fff0f0;
             border-color: var(--primary-color);
             color: var(--primary-color);
+            background: white;
         }
 
         /* 内容展示区 */
         .content-area { 
-            padding: 0 15px 30px; 
+            padding: 0 15px 40px; 
             max-width: 600px; 
             margin: 0 auto;
         }
         
-        /* 数据卡片设计 - 纵向堆叠，内容饱满 */
+        /* 数据卡片 - 半透明毛玻璃 + 左右排版 */
         .forecast-card {
             background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
+            backdrop-filter: blur(12px);
+            border-radius: 18px;
+            padding: 24px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 两列布局 */
-            gap: 15px; /* 间距 */
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            border: 1px solid rgba(255,255,255,0.5);
         }
         
-        /* 全宽项 (如描述) */
+        /* 全宽项 */
         .full-width {
-            grid-column: span 2;
-            border-bottom: 1px dashed #eee;
-            padding-bottom: 12px;
-            margin-bottom: 5px;
+            margin-bottom: 18px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #e0e0e0;
         }
 
-        .data-item {
+        /* 核心改动：标签在左，数值在右，并排显示 */
+        .data-row {
             display: flex;
-            flex-direction: column; /* 上下结构 */
-            justify-content: flex-start;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 1.15rem; /* 整体字号放大 */
         }
+        .data-row:last-child { margin-bottom: 0; }
         
         .data-label {
-            font-size: 0.85rem;
-            color: #999;
-            margin-bottom: 6px; /* 标签和数值的间距 */
+            color: #888;
+            font-size: 1.05rem;
+            font-weight: 500;
         }
         
         .data-value {
-            font-size: 1.15rem; /* 字体加大 */
             font-weight: 700;
             color: #333;
-            line-height: 1.2;
+            font-size: 1.2rem; /* 数值字号进一步放大 */
         }
         
-        /* 特殊样式 */
         .highlight-text { color: var(--primary-color); }
         
         .level-badge { 
             display: inline-block; 
-            padding: 4px 12px; 
-            border-radius: 6px; 
+            padding: 6px 16px; 
+            border-radius: 8px; 
             color: white; 
-            font-size: 1rem; 
+            font-size: 1.1rem; 
             font-weight: bold;
         }
         .level-1 { background-color: #2ecc71; } 
@@ -155,7 +158,15 @@
         .level-4 { background-color: #e74c3c; } 
         .level-5 { background-color: #8e44ad; }
 
-        .empty-tip { text-align: center; color: #999; margin-top: 50px; font-size: 1rem; }
+        .empty-tip { 
+            text-align: center; 
+            padding: 60px 20px; 
+            color: #666; 
+            font-size: 1.1rem; 
+            background: rgba(255,255,255,0.9);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
     </style>
 </head>
 <body>
@@ -164,23 +175,13 @@
     <h1>🌅 东方市晚霞预报</h1>
 </header>
 
-<!-- 一级导航：地点滑动 -->
-<div class="location-scroller" id="locContainer">
-    <!-- JS填充 -->
-</div>
+<div class="location-scroller" id="locContainer"></div>
 
-<!-- 二级导航：日期切换 -->
-<div class="date-selector" id="dateContainer">
-    <!-- JS填充 -->
-</div>
+<div class="date-selector" id="dateContainer"></div>
 
-<!-- 数据展示 -->
-<div id="resultArea" class="content-area">
-    <!-- JS填充 -->
-</div>
+<div id="resultArea" class="content-area"></div>
 
 <script>
-    // 注入Python处理好的数据
     const rawData = [{"观赏点":"鱼鳞洲","经度":108.617829,"纬度":19.097291,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-07-30","日出时间":"2026-07-30 06:22:37","日落时间":"19:21","高云量W":0.9096554518,"中云量W":0.190144226,"低云量W":0.3694711626,"总云量W":0.9575320482,"降水量W":0.0353999995,"高云量":0.9734374881,"中云量":0.1685763896,"低云量":0.1451388896,"总云量":0.9789930582,"降水量":0.125111118,"出现概率":36.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:54","预计结束时间":"19:48"},{"观赏点":"大广坝风景区","经度":108.672185,"纬度":19.106196,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-07-30","日出时间":"2026-07-30 06:22:23","日落时间":"19:21","高云量W":0.9004807472,"中云量W":0.1939903796,"低云量W":0.3818910122,"总云量W":0.954366982,"降水量W":0.0365999974,"高云量":0.9689236283,"中云量":0.1543402821,"低云量":0.1397569478,"总云量":0.9776041508,"降水量":0.2242222428,"出现概率":36.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:54","预计结束时间":"19:48"},{"观赏点":"俄贤岭","经度":109.083759,"纬度":18.995131,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-07-30","日出时间":"2026-07-30 06:20:54","日落时间":"19:19","高云量W":0.8731169701,"中云量W":0.2306089699,"低云量W":0.3742788434,"总云量W":0.9448717833,"降水量W":0.0255999994,"高云量":0.9256944656,"中云量":0.1616319418,"低云量":0.2951388955,"总云量":0.957465291,"降水量":0.0006666667,"出现概率":36.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:52","预计结束时间":"19:46"},{"观赏点":"利章港","经度":108.674691,"纬度":18.786862,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-07-30","日出时间":"2026-07-30 06:22:52","日落时间":"19:20","高云量W":0.9042868614,"中云量W":0.2133814096,"低云量W":0.3014823794,"总云量W":0.947035253,"降水量W":0.0,"高云量":0.8883680701,"中云量":0.168750003,"低云量":0.2451388836,"总云量":0.9206597209,"降水量":0.0066666664,"出现概率":37.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:54","预计结束时间":"19:48"},{"观赏点":"金月湾","经度":108.690025,"纬度":18.759875,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-07-30","日出时间":"2026-07-30 06:22:51","日落时间":"19:20","高云量W":0.9042868614,"中云量W":0.2133814096,"低云量W":0.3014823794,"总云量W":0.947035253,"降水量W":0.0,"高云量":0.8883680701,"中云量":0.168750003,"低云量":0.2451388836,"总云量":0.9206597209,"降水量":0.0331111066,"出现概率":37.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:54","预计结束时间":"19:48"},{"观赏点":"玉龙山观景台","经度":108.936211,"纬度":18.950596,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-07-30","日出时间":"2026-07-30 06:21:34","日落时间":"19:20","高云量W":0.8893429637,"中云量W":0.2140224427,"低云量W":0.374198705,"总云量W":0.9496794939,"降水量W":0.0215999987,"高云量":0.9447916746,"中云量":0.1536458284,"低云量":0.2550347149,"总云量":0.967881918,"降水量":0.0080000004,"出现概率":36.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:53","预计结束时间":"19:47"},{"观赏点":"鱼鳞洲","经度":108.617829,"纬度":19.097291,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-07-31","日出时间":"2026-07-31 06:22:58","日落时间":"19:21","高云量W":0.9516426325,"中云量W":0.1702323705,"低云量W":0.3277243674,"总云量W":0.9733173251,"降水量W":0.0,"高云量":0.9928819537,"中云量":0.1336805522,"低云量":0.2085069418,"总云量":0.9953125119,"降水量":0.0075555542,"出现概率":35.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:54","预计结束时间":"19:48"},{"观赏点":"大广坝风景区","经度":108.672185,"纬度":19.106196,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-07-31","日出时间":"2026-07-31 06:22:44","日落时间":"19:21","高云量W":0.9516025782,"中云量W":0.1725560874,"低云量W":0.3284855783,"总云量W":0.9736778736,"降水量W":0.0,"高云量":0.9923611283,"中云量":0.137500003,"低云量":0.2293402851,"总云量":0.9951388836,"降水量":0.0037777778,"出现概率":35.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:54","预计结束时间":"19:48"},{"观赏点":"俄贤岭","经度":109.083759,"纬度":18.995131,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-07-31","日出时间":"2026-07-31 06:21:15","日落时间":"19:19","高云量W":0.9156650901,"中云量W":0.1809695512,"低云量W":0.3134214878,"总云量W":0.9580528736,"降水量W":0.0,"高云量":0.9928819537,"中云量":0.078125,"低云量":0.2682291567,"总云量":0.995659709,"降水量":0.002222222,"出现概率":37.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:52","预计结束时间":"19:46"},{"观赏点":"利章港","经度":108.674691,"纬度":18.786862,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-07-31","日出时间":"2026-07-31 06:23:12","日落时间":"19:20","高云量W":0.9214342833,"中云量W":0.1608173102,"低云量W":0.316105783,"总云量W":0.9534855485,"降水量W":0.0,"高云量":0.995659709,"中云量":0.0657986104,"低云量":0.2899305522,"总云量":0.9977430701,"降水量":0.0,"出现概率":37.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:53","预计结束时间":"19:47"},{"观赏点":"金月湾","经度":108.690025,"纬度":18.759875,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-07-31","日出时间":"2026-07-31 06:23:11","日落时间":"19:20","高云量W":0.9214342833,"中云量W":0.1608173102,"低云量W":0.316105783,"总云量W":0.9534855485,"降水量W":0.0065999995,"高云量":0.995659709,"中云量":0.0657986104,"低云量":0.2899305522,"总云量":0.9977430701,"降水量":0.0,"出现概率":37.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:53","预计结束时间":"19:47"},{"观赏点":"玉龙山观景台","经度":108.936211,"纬度":18.950596,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-07-31","日出时间":"2026-07-31 06:21:55","日落时间":"19:19","高云量W":0.9396634698,"中云量W":0.1830528826,"低云量W":0.3221554458,"总云量W":0.9690304399,"降水量W":0.0,"高云量":0.9927083254,"中云量":0.0996527746,"低云量":0.2409722209,"总云量":0.9954861403,"降水量":0.0122222211,"出现概率":36.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:53","预计结束时间":"19:46"},{"观赏点":"鱼鳞洲","经度":108.617829,"纬度":19.097291,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-08-01","日出时间":"2026-08-01 06:23:19","日落时间":"19:20","高云量W":0.9595752954,"中云量W":0.2458333373,"低云量W":0.4282051325,"总云量W":0.9808092713,"降水量W":0.0,"高云量":0.9982638955,"中云量":0.0373263881,"低云量":0.082986109,"总云量":0.9989583492,"降水量":0.0124444431,"出现概率":31.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:54","预计结束时间":"19:48"},{"观赏点":"大广坝风景区","经度":108.672185,"纬度":19.106196,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-08-01","日出时间":"2026-08-01 06:23:05","日落时间":"19:20","高云量W":0.9604967833,"中云量W":0.2429086566,"低云量W":0.4237179458,"总云量W":0.9806490541,"降水量W":0.0,"高云量":0.9980902672,"中云量":0.0368055552,"低云量":0.0815972239,"总云量":0.9989583492,"降水量":0.0111111114,"出现概率":31.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:53","预计结束时间":"19:47"},{"观赏点":"俄贤岭","经度":109.083759,"纬度":18.995131,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-08-01","日出时间":"2026-08-01 06:21:36","日落时间":"19:18","高云量W":0.9522836804,"中云量W":0.2431490421,"低云量W":0.4018830061,"总云量W":0.9731570482,"降水量W":0.0,"高云量":0.9989583492,"中云量":0.0319444463,"低云量":0.1741319448,"总云量":0.9998263717,"降水量":0.1097777933,"出现概率":32.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:52","预计结束时间":"19:46"},{"观赏点":"利章港","经度":108.674691,"纬度":18.786862,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-08-01","日出时间":"2026-08-01 06:23:33","日落时间":"19:20","高云量W":0.9343349338,"中云量W":0.2193509638,"低云量W":0.3796874881,"总云量W":0.9646233916,"降水量W":0.0,"高云量":0.9967013597,"中云量":0.0338541679,"低云量":0.0789930522,"总云量":0.9973958135,"降水量":0.0144444443,"出现概率":34.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:53","预计结束时间":"19:47"},{"观赏点":"金月湾","经度":108.690025,"纬度":18.759875,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-08-01","日出时间":"2026-08-01 06:23:32","日落时间":"19:20","高云量W":0.9343349338,"中云量W":0.2193509638,"低云量W":0.3796874881,"总云量W":0.9646233916,"降水量W":0.0,"高云量":0.9967013597,"中云量":0.0338541679,"低云量":0.0789930522,"总云量":0.9973958135,"降水量":0.018888887,"出现概率":34.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:53","预计结束时间":"19:47"},{"观赏点":"玉龙山观景台","经度":108.936211,"纬度":18.950596,"起报时间":"2026-07-29 20:00:00","预报日期":"2026-08-01","日出时间":"2026-08-01 06:22:15","日落时间":"19:19","高云量W":0.9545272589,"中云量W":0.2443910241,"低云量W":0.4182291627,"总云量W":0.976442337,"降水量W":0.0,"高云量":0.9986110926,"中云量":0.0326388888,"低云量":0.1633680612,"总云量":0.9996528029,"降水量":0.0635555461,"出现概率":31.0,"晚霞等级":3,"晚霞描述":"绚丽晚霞","预计开始时间":"18:52","预计结束时间":"19:46"}];
     const locations = ['俄贤岭', '利章港', '大广坝风景区', '玉龙山观景台', '金月湾', '鱼鳞洲'];
     const datesRaw = ['2026-07-30', '2026-07-31', '2026-08-01'];
@@ -193,9 +194,7 @@
     let currentLoc = locations[0];
     let currentDate = datesRaw[0];
 
-    // 初始化
     function init() {
-        // 渲染地点 tabs
         locations.forEach((loc, index) => {
             const tab = document.createElement('div');
             tab.className = `loc-tab ${index === 0 ? 'active' : ''}`;
@@ -210,7 +209,6 @@
 
     function switchLocation(newLoc, tabElement) {
         currentLoc = newLoc;
-        // 更新 Tab 样式
         document.querySelectorAll('.loc-tab').forEach(t => t.classList.remove('active'));
         tabElement.classList.add('active');
         renderData();
@@ -221,7 +219,7 @@
         datesRaw.forEach((date, index) => {
             const pill = document.createElement('div');
             pill.className = `date-pill ${date === currentDate ? 'active' : ''}`;
-            pill.innerText = datesDisplay[index]; // 使用格式化后的 "7月30日"
+            pill.innerText = datesDisplay[index];
             pill.onclick = () => switchDate(date, pill);
             dateContainer.appendChild(pill);
         });
@@ -235,7 +233,6 @@
     }
 
     function renderData() {
-        // 筛选数据
         const filtered = rawData.filter(item => 
             item['观赏点'] === currentLoc && String(item['预报日期']) === String(currentDate)
         );
@@ -247,39 +244,36 @@
 
         let html = '';
         filtered.forEach(item => {
-            // 处理等级颜色
             let levelClass = 'level-' + item['晚霞等级'];
             
             html += `
             <div class="forecast-card">
-                <!-- 第一行：晚霞描述 (全宽) -->
-                <div class="data-item full-width">
+                <div class="data-row full-width">
                     <span class="data-label">晚霞描述</span>
                     <span class="data-value">${item['晚霞描述'] || '暂无描述'}</span>
                 </div>
 
-                <!-- 第二行：等级 & 概率 -->
-                <div class="data-item">
+                <div class="data-row">
                     <span class="data-label">晚霞等级</span>
-                    <div><span class="level-badge ${levelClass}">${item['晚霞等级']} 级</span></div>
+                    <span class="level-badge ${levelClass}">${item['晚霞等级']} 级</span>
                 </div>
-                <div class="data-item">
+
+                <div class="data-row">
                     <span class="data-label">出现概率</span>
                     <span class="data-value highlight-text">${item['出现概率']}%</span>
                 </div>
 
-                <!-- 第三行：日落时间 & 预计开始 -->
-                <div class="data-item">
+                <div class="data-row">
                     <span class="data-label">日落时间</span>
                     <span class="data-value">${item['日落时间'] || '--:--'}</span>
                 </div>
-                <div class="data-item">
+
+                <div class="data-row">
                     <span class="data-label">预计开始</span>
                     <span class="data-value">${item['预计开始时间'] || '--:--'}</span>
                 </div>
 
-                <!-- 第四行：预计结束 (单独一行或补位，这里为了平衡放左边，右边留空或放其他) -->
-                <div class="data-item">
+                <div class="data-row">
                     <span class="data-label">预计结束</span>
                     <span class="data-value">${item['预计结束时间'] || '--:--'}</span>
                 </div>
@@ -289,9 +283,7 @@
         resultArea.innerHTML = html;
     }
 
-    // 启动
     init();
 </script>
-
 </body>
 </html>
