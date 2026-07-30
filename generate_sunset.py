@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 
 # ================= 配置区 =================
-# 1. 数据源路径
+# 1. 数据源路径 (保持不变)
 CSV_DIR = r"\\10.155.154.102\晚霞预报" 
 
 # 2. 输出路径 (保持不变)
@@ -34,14 +34,21 @@ def clean_location_name(name):
         return name.replace("东方市", "")
     return name
 
-def format_time_only(time_str):
-    """将时间转换为 HH:MM 格式"""
-    if not isinstance(time_str, str) or len(time_str) < 16:
-        return time_str
+def format_time_only(time_val):
+    """将时间格式化为 HH:MM，如果为空则返回 '--'"""
+    if pd.isna(time_val) or time_val == '':
+        return "--"
     try:
-        return time_str[11:16]
+        time_str = str(time_val).strip()
+        # 尝试多种常见格式
+        for fmt in ["%Y-%m-%d %H:%M:%S", "%Y/%m/%d %H:%M:%S", "%H:%M:%S", "%H:%M"]:
+            try:
+                return datetime.strptime(time_str, fmt).strftime("%H:%M")
+            except ValueError:
+                continue
+        return time_str[:5] # 兜底截取
     except:
-        return time_str
+        return str(time_val)
 
 def format_date_display(date_str):
     """将日期转换为 '7月30日' 格式"""
@@ -53,17 +60,21 @@ def format_date_display(date_str):
     return date_str
 
 def generate_html(df):
-    """生成包含背景图和增强排版的HTML"""
+    """生成包含背景图和并排布局的HTML"""
     
-    # 1. 数据预处理
+    # 1. 数据预处理 (严格使用原始列名)
+    # 清洗观赏点名称
     df['观赏点'] = df['观赏点'].apply(clean_location_name)
     
-    # 处理时间字段
-    for col in ['日落时间', '预计开始时间', '预计结束时间']:
-        if col in df.columns:
-            df[col] = df[col].apply(format_time_only)
-            
-    # 格式化概率
+    # 格式化时间字段 (日落时间 + 预计开始/结束时间)
+    if '日落时间' in df.columns:
+        df['日落时间'] = df['日落时间'].apply(format_time_only)
+    if '预计开始时间' in df.columns:
+        df['预计开始时间'] = df['预计开始时间'].apply(format_time_only)
+    if '预计结束时间' in df.columns:
+        df['预计结束时间'] = df['预计结束时间'].apply(format_time_only)
+        
+    # 格式化概率 (保留两位小数)
     if '出现概率' in df.columns:
         df['出现概率'] = pd.to_numeric(df['出现概率'], errors='coerce').round(2)
     
@@ -72,7 +83,7 @@ def generate_html(df):
     dates_raw = sorted(df['预报日期'].unique().tolist())
     dates_display = [format_date_display(d) for d in dates_raw]
     
-    # 将DataFrame转换为JSON
+    # 将DataFrame转换为JSON供前端使用
     data_json = df.to_json(orient='records', force_ascii=False)
 
     html_content = f"""<!DOCTYPE html>
@@ -86,7 +97,7 @@ def generate_html(df):
             --primary-color: #ff6b6b; 
             --text-main: #333333;
             --text-sub: #666666;
-            --card-bg: rgba(255, 255, 255, 0.92); /* 卡片半透明白色 */
+            --card-bg: rgba(255, 255, 255, 0.92);
         }}
         
         body {{ 
@@ -95,13 +106,13 @@ def generate_html(df):
             padding: 0; 
             color: var(--text-main); 
             min-height: 100vh;
-            /* 核心改动：背景图设置 */
+            /* 背景图设置：晚霞.jpg 必须与 index.html 同目录 */
             background: url('晚霞.jpg') no-repeat center center fixed;
             background-size: cover;
             -webkit-font-smoothing: antialiased;
         }}
 
-        /* 顶部标题栏 - 半透明毛玻璃效果 */
+        /* 顶部标题栏 - 半透明毛玻璃 */
         header {{ 
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(10px);
@@ -114,7 +125,7 @@ def generate_html(df):
         }}
         h1 {{ margin: 0; color: #d63031; font-size: 1.6rem; font-weight: 700; letter-spacing: 1px; }}
         
-        /* 一级导航：地点滑动 */
+        /* 一级导航：地点横向滑动 */
         .location-scroller {{
             display: flex;
             overflow-x: auto;
@@ -179,7 +190,7 @@ def generate_html(df):
             margin: 0 auto;
         }}
         
-        /* 数据卡片 - 半透明毛玻璃 + 左右排版 */
+        /* 数据卡片 - 半透明毛玻璃 + 并排布局 */
         .forecast-card {{
             background: var(--card-bg);
             backdrop-filter: blur(12px);
@@ -190,20 +201,20 @@ def generate_html(df):
             border: 1px solid rgba(255,255,255,0.5);
         }}
         
-        /* 全宽项 */
+        /* 全宽项 (晚霞描述) */
         .full-width {{
             margin-bottom: 18px;
             padding-bottom: 15px;
             border-bottom: 1px dashed #e0e0e0;
         }}
 
-        /* 核心改动：标签在左，数值在右，并排显示 */
+        /* 核心：标签在左，数值在右，并排显示 */
         .data-row {{
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 16px;
-            font-size: 1.15rem; /* 整体字号放大 */
+            font-size: 1.15rem;
         }}
         .data-row:last-child {{ margin-bottom: 0; }}
         
@@ -216,7 +227,7 @@ def generate_html(df):
         .data-value {{
             font-weight: 700;
             color: #333;
-            font-size: 1.2rem; /* 数值字号进一步放大 */
+            font-size: 1.2rem;
         }}
         
         .highlight-text {{ color: var(--primary-color); }}
@@ -252,13 +263,17 @@ def generate_html(df):
     <h1>🌅 东方市晚霞预报</h1>
 </header>
 
+<!-- 一级导航：地点滑动 -->
 <div class="location-scroller" id="locContainer"></div>
 
+<!-- 二级导航：日期切换 -->
 <div class="date-selector" id="dateContainer"></div>
 
+<!-- 数据展示 -->
 <div id="resultArea" class="content-area"></div>
 
 <script>
+    // 注入Python处理好的数据
     const rawData = {data_json};
     const locations = {locations};
     const datesRaw = {dates_raw};
@@ -271,45 +286,48 @@ def generate_html(df):
     let currentLoc = locations[0];
     let currentDate = datesRaw[0];
 
-    function init() {{
-        locations.forEach((loc, index) => {{
-            const tab = document.createElement('div');
-            tab.className = `loc-tab ${{index === 0 ? 'active' : ''}}`;
-            tab.innerText = loc;
-            tab.onclick = () => switchLocation(loc, tab);
-            locContainer.appendChild(tab);
+    // 初始化地点导航
+    function initLocations() {{
+        locations.forEach(loc => {{
+            const chip = document.createElement('div');
+            chip.className = 'loc-tab';
+            chip.innerText = loc;
+            chip.onclick = () => switchLocation(loc, chip);
+            if(loc === currentLoc) chip.classList.add('active');
+            locContainer.appendChild(chip);
         }});
-
-        renderDates();
-        renderData();
     }}
 
-    function switchLocation(newLoc, tabElement) {{
-        currentLoc = newLoc;
-        document.querySelectorAll('.loc-tab').forEach(t => t.classList.remove('active'));
-        tabElement.classList.add('active');
-        renderData();
+    // 切换地点
+    function switchLocation(loc, element) {{
+        currentLoc = loc;
+        document.querySelectorAll('.loc-tab').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        render();
     }}
 
-    function renderDates() {{
-        dateContainer.innerHTML = '';
+    // 初始化日期导航
+    function initDates() {{
         datesRaw.forEach((date, index) => {{
-            const pill = document.createElement('div');
-            pill.className = `date-pill ${{date === currentDate ? 'active' : ''}}`;
-            pill.innerText = datesDisplay[index];
-            pill.onclick = () => switchDate(date, pill);
-            dateContainer.appendChild(pill);
+            const btn = document.createElement('div');
+            btn.className = 'date-pill';
+            btn.innerText = datesDisplay[index];
+            btn.onclick = () => switchDate(date, btn);
+            if(date === currentDate) btn.classList.add('active');
+            dateContainer.appendChild(btn);
         }});
     }}
 
-    function switchDate(newDate, pillElement) {{
-        currentDate = newDate;
-        document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
-        pillElement.classList.add('active');
-        renderData();
+    // 切换日期
+    function switchDate(date, element) {{
+        currentDate = date;
+        document.querySelectorAll('.date-pill').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        render();
     }}
 
-    function renderData() {{
+    // 渲染核心逻辑
+    function render() {{
         const filtered = rawData.filter(item => 
             item['观赏点'] === currentLoc && String(item['预报日期']) === String(currentDate)
         );
@@ -321,7 +339,8 @@ def generate_html(df):
 
         let html = '';
         filtered.forEach(item => {{
-            let levelClass = 'level-' + item['晚霞等级'];
+            const level = item['晚霞等级'];
+            const levelClass = `level-${{level}}`;
             
             html += `
             <div class="forecast-card">
@@ -332,7 +351,7 @@ def generate_html(df):
 
                 <div class="data-row">
                     <span class="data-label">晚霞等级</span>
-                    <span class="level-badge ${{levelClass}}">${{item['晚霞等级']}} 级</span>
+                    <span class="level-badge ${{levelClass}}">${{level}} 级</span>
                 </div>
 
                 <div class="data-row">
@@ -360,7 +379,11 @@ def generate_html(df):
         resultArea.innerHTML = html;
     }}
 
-    init();
+    // 启动
+    initLocations();
+    initDates();
+    render();
+
 </script>
 </body>
 </html>"""
@@ -372,6 +395,7 @@ if __name__ == "__main__":
     
     if csv_file:
         try:
+            # 读取CSV，假设编码为utf-8，如果乱码可尝试 'gbk'
             df = pd.read_csv(csv_file, encoding='utf-8') 
             
             print("✨ 正在生成视觉增强版网页...")
@@ -381,6 +405,7 @@ if __name__ == "__main__":
                 f.write(html)
                 
             print(f"✅ 成功！文件已保存至: {OUTPUT_FILE}")
+            print("💡 提示: 请确保 '晚霞.jpg' 也在该目录下，否则背景无法显示")
             
         except Exception as e:
             print(f"❌ 处理出错: {e}")
