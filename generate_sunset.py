@@ -192,7 +192,7 @@ def generate_html(df):
         
         /* 数据卡片 - 半透明毛玻璃 + 并排布局 */
         .forecast-card {{
-            background: var(--card-bg);
+            background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(12px);
             border-radius: 18px;
             padding: 24px;
@@ -219,7 +219,7 @@ def generate_html(df):
         .data-row:last-child {{ margin-bottom: 0; }}
         
         .data-label {{
-            color: #888;
+            color: #666;
             font-size: 1.05rem;
             font-weight: 500;
         }}
@@ -228,6 +228,7 @@ def generate_html(df):
             font-weight: 700;
             color: #333;
             font-size: 1.2rem;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.8);
         }}
         
         .highlight-text {{ color: var(--primary-color); }}
