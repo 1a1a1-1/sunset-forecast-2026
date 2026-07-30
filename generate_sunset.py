@@ -78,8 +78,13 @@ def generate_html(df):
     if '出现概率' in df.columns:
         df['出现概率'] = pd.to_numeric(df['出现概率'], errors='coerce').round(2)
     
-    # 提取唯一的地点和日期
-    locations = sorted(df['观赏点'].unique().tolist())
+    # 提取地点和日期
+    all_locations = sorted(df['观赏点'].unique().tolist())
+    if '鱼鳞洲' in all_locations:
+        all_locations.remove('鱼鳞洲')
+        locations = ['鱼鳞洲'] + all_locations
+    else:
+        locations = all_locations
     dates_raw = sorted(df['预报日期'].unique().tolist())
     dates_display = [format_date_display(d) for d in dates_raw]
     
@@ -131,7 +136,7 @@ def generate_html(df):
             overflow-x: auto;
             white-space: nowrap;
             padding: 15px;
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.80);
             backdrop-filter: blur(10px);
             scrollbar-width: none;
         }}
@@ -142,7 +147,7 @@ def generate_html(df):
             padding: 10px 20px;
             margin-right: 12px;
             border-radius: 24px;
-            background: rgba(240, 240, 240, 0.8);
+            background: rgba(240, 240, 240, 0.85);
             color: #666;
             font-size: 1.05rem;
             font-weight: 500;
@@ -162,20 +167,22 @@ def generate_html(df):
             justify-content: center;
             gap: 15px;
             padding: 15px;
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.70);
             backdrop-filter: blur(10px);
             margin-bottom: 15px;
         }}
+        
         .date-pill {{
-            padding: 10px 24px;
+            padding: 8px 18px;
             border-radius: 14px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.85);
             border: 2px solid transparent;
             color: var(--text-sub);
-            font-size: 1.1rem;
+            font-size: 0.95rem; /* 从1.1rem调小到0.95rem */
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            white-space: nowrap; /* 强制不换行 */
         }}
         .date-pill.active {{
             border-color: var(--primary-color);
@@ -192,7 +199,7 @@ def generate_html(df):
         
         /* 数据卡片 - 半透明毛玻璃 + 并排布局 */
         .forecast-card {{
-            background: rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.55);
             backdrop-filter: blur(12px);
             border-radius: 18px;
             padding: 24px;
@@ -219,7 +226,7 @@ def generate_html(df):
         .data-row:last-child {{ margin-bottom: 0; }}
         
         .data-label {{
-            color: #666;
+            color: #444;
             font-size: 1.05rem;
             font-weight: 500;
         }}
@@ -406,7 +413,6 @@ if __name__ == "__main__":
                 f.write(html)
                 
             print(f"✅ 成功！文件已保存至: {OUTPUT_FILE}")
-            print("💡 提示: 请确保 '晚霞.jpg' 也在该目录下，否则背景无法显示")
             
         except Exception as e:
             print(f"❌ 处理出错: {e}")
