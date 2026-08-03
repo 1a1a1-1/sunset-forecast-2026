@@ -1,0 +1,26 @@
+name: Auto Deploy Sunset Forecast
+
+on:
+  # 当 index.html 或 晚霞.jpg 被推送时自动触发
+  push:
+    paths:
+      - 'index.html'
+      - '晚霞.jpg'
+  # 允许手动触发（用于测试）
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          publish_branch: gh-pages
